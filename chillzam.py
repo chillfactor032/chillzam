@@ -165,7 +165,7 @@ with open(raw_audio_file, "rb") as song:
     l = len(songb64)
     #Detect the song
     matches = detectSong(songb64,config["shazam_api_key"])
-    if matches["track"]:
+    if "track" in matches.keys():
         title = matches["track"]["title"]
         artist = matches["track"]["subtitle"]
         print(f"{title} by {artist}")
