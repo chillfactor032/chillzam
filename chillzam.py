@@ -124,6 +124,10 @@ def record_stream(url, out_file, oauth_token, max_bytes=200):
     session = streamlink.Streamlink()
     session.set_plugin_option("twitch", "api-header", [("Authorization", f"OAuth {oauth_token}")])
     streams = session.streams(url)
+    if len(streams) == 0 or "worst" not in streams.keys():
+        verbose_log(f"No streams found for channel: {url}")
+        print("Stream is not available")
+        sys.exit(1)
     stream_obj = streams["worst"]
     verbose_log(f"Stream: {stream_obj}")
     fd = stream_obj.open()
