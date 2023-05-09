@@ -140,7 +140,7 @@ def record_stream(url, out_file, oauth_token, max_bytes=200):
 
 """ Script Logic """
 verbose_log(f"Twitch URL: {config['twitch_channel']}")
-verbose_log(f"Begin recording stream ({config['bytes_to_record']} bytes)")
+verbose_log(f"Begin recording stream ({config['kbytes_to_record']} bytes)")
 stream_audio_file = "output.acc"
 if record_stream(config["twitch_channel"], stream_audio_file, config["twitch_gql_oauth_token"], config["kbytes_to_record"]):
     verbose_log("Stream audio recorded successfully")
