@@ -168,7 +168,7 @@ with open(raw_audio_file, "rb") as song:
     if matches["track"]:
         title = matches["track"]["title"]
         artist = matches["track"]["subtitle"]
-        print(f"Song Detected: {title} by {artist}")
+        print(f"{title} by {artist}")
         sys.exit(0)
     else:
         print("Could not detect song.")
