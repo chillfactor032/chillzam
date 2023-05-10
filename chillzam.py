@@ -99,12 +99,23 @@ def twitch_gql_token_valid(token):
     url = "https://gql.twitch.tv/gql"
     headers = {
         "Client-Id": "kimne78kx3ncx6brgo4mv6wki5h1ko",
-        "Content-Type": "text/plain"
+        "Content-Type": "text/plain",
+        "Authorization": f"OAuth {token}"
     }
-    response = requests.post(url, headers=headers, json={})
-    print(response.status_code)
-    print(response.headers)
-    print(response.text)
+    data = [
+        {
+            "operationName": "SyncedSettingsEmoteAnimations",
+                "variables": {},
+                "extensions": {
+                "persistedQuery": {
+                    "version": 1,
+                    "sha256Hash": "64ac5d385b316fd889f8c46942a7c7463a1429452ef20ffc5d0cd23fcc4ecf30"
+                }
+            }
+        }
+    ]
+    response = requests.post(url, headers=headers, json=data)
+    return response.status_code == 200
 
 #Song Data is Base64 Encoded
 def detectSong(raw_audio_b64, api_key):
@@ -157,12 +168,17 @@ def record_stream(url, out_file, oauth_token, max_bytes=200):
         file.write(data)
     return os.path.exists(out_file)
 
-"""Testing
-twitch_gql_token_valid("test")
-sys.exit(0)
-"""
 """ Script Logic """
 verbose_log(f"Twitch URL: {config['twitch_channel']}")
+
+#Test validity of GQL OAuth token
+if twitch_gql_token_valid(config["twitch_gql_oauth_token"]):
+    verbose_log("Twitch GQL OAuth Token Valid: True")
+else:
+    verbose_log("Twitch GQL OAuth Token Valid: False")
+    print("Twitch GQL Token Expired")
+    sys.exit(1)
+
 verbose_log(f"Begin recording stream ({config['kbytes_to_record']} bytes)")
 
 requests_remaining = -1
@@ -192,14 +208,22 @@ with open(raw_audio_file, "rb") as song:
     l = len(songb64)
     #Detect the song
     requests_remaining, matches = detectSong(songb64,config["shazam_api_key"])
-    request_remaining_str = ""
-    if show_requests_remaining:
-        request_remaining_str = f"||{requests_remaining}"
+    verbose_log(f"Shazam Requests Remaining: {requests_remaining}")
+    verbose_log(matches)
+
+    out = {
+        "artist": "",
+        "song": "",
+        "album_art": "",
+        "remaining": requests_remaining
+    }
+
     if "track" in matches.keys():
-        title = matches["track"]["title"]
-        artist = matches["track"]["subtitle"]
-        print(f"{title} by {artist}{request_remaining_str}")
-        sys.exit(0)
-    else:
-        print(f"Could not detect song.{request_remaining_str}")
-        sys.exit(0)
+        if "title" in matches["track"].keys():
+            out["song"] = matches["track"]["title"]
+        if "subtitle" in matches["track"].keys():
+            out["artist"] = matches["track"]["subtitle"]
+        if "images" in matches["track"].keys() and "coverart" in matches["track"]["images"].keys():
+            out["album_art"] = matches["track"]["images"]["coverart"]
+    print(json.dumps(out))
+sys.exit(0)
