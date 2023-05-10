@@ -94,8 +94,21 @@ if not os.path.exists(ffmpeg_path):
 else:
     verbose_log("Confirmed FFmpeg exists.")
 
+#Detect if oauth token is valid
+def twitch_gql_token_valid(token):
+    url = "https://gql.twitch.tv/gql"
+    headers = {
+        "Client-Id": "kimne78kx3ncx6brgo4mv6wki5h1ko",
+        "Content-Type": "text/plain"
+    }
+    response = requests.post(url, headers=headers, json={})
+    print(response.status_code)
+    print(response.headers)
+    print(response.text)
+
 #Song Data is Base64 Encoded
 def detectSong(raw_audio_b64, api_key):
+    requests_left = -1
     url = "https://shazam.p.rapidapi.com/songs/v2/detect"
     querystring = {"timezone":"America/Chicago","locale":"en-US"}
     headers = {
@@ -104,7 +117,9 @@ def detectSong(raw_audio_b64, api_key):
         "X-RapidAPI-Host": "shazam.p.rapidapi.com"
     }
     response = requests.post(url, data=raw_audio_b64, headers=headers, params=querystring)
-    return response.json()
+    if "x-ratelimit-requests-remaining" in response.headers:
+        requests_left = response.headers["x-ratelimit-requests-remaining"]
+    return requests_left, response.json()
 
 def convert_to_raw_audio(ffmpeg, in_file, out_file):
     if os.path.exists(out_file):
@@ -142,9 +157,21 @@ def record_stream(url, out_file, oauth_token, max_bytes=200):
         file.write(data)
     return os.path.exists(out_file)
 
+"""Testing
+twitch_gql_token_valid("test")
+sys.exit(0)
+"""
 """ Script Logic """
 verbose_log(f"Twitch URL: {config['twitch_channel']}")
 verbose_log(f"Begin recording stream ({config['kbytes_to_record']} bytes)")
+
+requests_remaining = -1
+show_requests_remaining = False
+if "show_requests_remaining" in config.keys():
+    show_requests_remaining = config["show_requests_remaining"]
+
+verbose_log(f"Report Shazam Requests Remaining: {show_requests_remaining}")
+
 stream_audio_file = "output.acc"
 if record_stream(config["twitch_channel"], stream_audio_file, config["twitch_gql_oauth_token"], config["kbytes_to_record"]):
     verbose_log("Stream audio recorded successfully")
@@ -164,12 +191,19 @@ with open(raw_audio_file, "rb") as song:
     songb64 = base64.b64encode(songBytes)
     l = len(songb64)
     #Detect the song
-    matches = detectSong(songb64,config["shazam_api_key"])
+    requests_remaining, matches = detectSong(songb64,config["shazam_api_key"])
+
+    if requests_remaining == -1:
+        requests_remaining = "?"
+
+    request_remaining_str = ""
+    if show_requests_remaining:
+        request_remaining_str = f"||{requests_remaining}"
     if "track" in matches.keys():
         title = matches["track"]["title"]
         artist = matches["track"]["subtitle"]
-        print(f"{title} by {artist}")
+        print(f"{title} by {artist}{request_remaining_str}")
         sys.exit(0)
     else:
-        print("Could not detect song.")
+        print(f"Could not detect song.{request_remaining_str}")
         sys.exit(0)
