@@ -192,10 +192,6 @@ with open(raw_audio_file, "rb") as song:
     l = len(songb64)
     #Detect the song
     requests_remaining, matches = detectSong(songb64,config["shazam_api_key"])
-
-    if requests_remaining == -1:
-        requests_remaining = "?"
-
     request_remaining_str = ""
     if show_requests_remaining:
         request_remaining_str = f"||{requests_remaining}"
