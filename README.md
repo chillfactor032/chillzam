@@ -20,6 +20,7 @@ The script needs a config file to operate. This config file can be specified at 
     "twitch_gql_oauth_token": "xxxxxxxxxxxxxxxxxxxxxxx",
     "shazam_api_key": "xxxxxxxxxxxxxxxxxxxxxxx",
     "ffmpeg_path": "",
+    "working_dir": "",
     "kbytes_to_record": 200,
     "show_requests_remaining", true
 }
