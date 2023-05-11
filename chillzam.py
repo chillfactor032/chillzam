@@ -106,10 +106,12 @@ if not os.path.exists(ffmpeg_path):
 else:
     verbose_log("Confirmed FFmpeg exists.")
 
-working_dir = config["working_dir"]
-if working_dir is not None or working_dir != "":
-    if not os.path.exists(working_dir):
-        working_dir = ""
+working_dir = ""
+if "working_dir" in config.keys():
+    working_dir = config["working_dir"]
+    if working_dir is not None or working_dir != "":
+        if not os.path.exists(working_dir):
+            working_dir = ""
 
 #Detect if oauth token is valid
 def twitch_gql_token_valid(token):
