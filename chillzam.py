@@ -7,6 +7,7 @@ import streamlink
 import requests
 import subprocess
 import base64
+import random
 from shutil import which
 
 out = {
@@ -16,6 +17,10 @@ out = {
     "error": "",
     "remaining": -1
 }
+
+random_file_name = str(random.randint(10000000,99999999))
+stream_recording_file = f"{random_file_name}.acc"
+raw_recording_file = f"{random_file_name}.raw"
 
 system = platform.system()
 script_dir = os.path.realpath(os.path.dirname(__file__))
@@ -100,6 +105,11 @@ if not os.path.exists(ffmpeg_path):
     quit(out, 1)
 else:
     verbose_log("Confirmed FFmpeg exists.")
+
+working_dir = config["working_dir"]
+if working_dir is not None or working_dir != "":
+    if not os.path.exists(working_dir):
+        working_dir = ""
 
 #Detect if oauth token is valid
 def twitch_gql_token_valid(token):
@@ -190,6 +200,10 @@ else:
     out["error"] = "Twitch GQL Token Expired"
     quit(out, 1)
 
+stream_recording_file = os.path.join(working_dir, stream_recording_file)
+raw_recording_file = os.path.join(working_dir, raw_recording_file)
+verbose_log(f"Stream Recording Path: {stream_recording_file}")
+verbose_log(f"Raw Recording Path: {raw_recording_file}")
 verbose_log(f"Begin recording stream ({config['kbytes_to_record']} bytes)")
 
 requests_remaining = -1
@@ -199,22 +213,20 @@ if "show_requests_remaining" in config.keys():
 
 verbose_log(f"Report Shazam Requests Remaining: {show_requests_remaining}")
 
-stream_audio_file = "output.acc"
-if record_stream(config["twitch_channel"], stream_audio_file, config["twitch_gql_oauth_token"], config["kbytes_to_record"]):
+if record_stream(config["twitch_channel"], stream_recording_file, config["twitch_gql_oauth_token"], config["kbytes_to_record"]):
     verbose_log("Stream audio recorded successfully")
 else:
     out["error"] = "Error recording stream audio."
     quit(out, 1)
 
-raw_audio_file = "output.raw"
-if convert_to_raw_audio(ffmpeg_path, stream_audio_file, raw_audio_file):
+if convert_to_raw_audio(ffmpeg_path, stream_recording_file, raw_recording_file):
     verbose_log("Audio converted successfully")
 else:
     out["error"] = "Error converting stream audio from ACC to raw PCM s16le"
     quit(out, 1)
 
 #Encode raw audio to base64
-with open(raw_audio_file, "rb") as song:
+with open(raw_recording_file, "rb") as song:
     songBytes = song.read()
     songb64 = base64.b64encode(songBytes)
     l = len(songb64)
@@ -235,4 +247,11 @@ with open(raw_audio_file, "rb") as song:
     else:
         out["error"] = "Song not identified"
 
+#Cleanup Files
+if os.path.exists(raw_recording_file):
+    os.remove(raw_recording_file)
+    verbose_log(f"Removed Raw Recording: " + str(not os.path.exists(raw_recording_file)))
+if os.path.exists(stream_recording_file):
+    os.remove(stream_recording_file)
+    verbose_log(f"Stream Recording: " + str(not os.path.exists(stream_recording_file)))
 quit(out)
