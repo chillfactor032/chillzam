@@ -9,6 +9,14 @@ import subprocess
 import base64
 from shutil import which
 
+out = {
+    "artist": "",
+    "song": "",
+    "album_art": "",
+    "error": "",
+    "remaining": -1
+}
+
 system = platform.system()
 script_dir = os.path.realpath(os.path.dirname(__file__))
 config_path = os.path.join(script_dir, "config.json")
@@ -35,20 +43,20 @@ if args.config:
         config_path = args.config
         config_src = "CLI arg"
     else:
-        sys.stderr.write("Specified config file does not exist.")
-        sys.exit(1)
+        out["error"] = "Specified config file does not exist."
+        quit(out, 1)
 else:
     if not os.path.exists(config_path):
-        sys.stderr.write("No config file could be found. Specify with -c option or a config.json in script dir.")
-        sys.exit(1)
+        out["error"] = "No config file could be found. Specify with -c option or a config.json in script dir."
+        quit(out, 1)
 
 try:
     with open(config_path) as config_file:
         config = json.load(config_file)
         verbose_log("Config file loaded.")
 except Exception as e:
-    sys.stderr.write("Could not load json config file. Improper json formatting?")
-    sys.exit(1)
+    out["error"] = "Could not load json config file. Improper json formatting?"
+    quit(out, 1)
 
 verbose_log(f"Config File: {config_path}")
 verbose_log(f"Config File Source: {config_src}")
@@ -75,22 +83,21 @@ if not ffmpeg_path:
     if system == "Windows":
         ffmpeg_path = os.path.join(script_dir, "bin", "win", "ffmpeg-win64.exe")
     elif system == "Linux":
-        print("FFmpeg is not installed. Install it using your package manager.")
-        sys.exit(1)
+        out["error"] = "FFmpeg is not installed. Install it using your package manager."
+        quit(out, 1)
     elif system == "Darwin":
         ffmpeg_path = os.path.join(script_dir, "bin", "mac", "ffmpeg")
     else:
-        print(f"Unsupported OS Detected: {system}")
-        sys.exit(1)
+        out["error"] = f"Unsupported OS Detected: {system}"
+        quit(out, 1)
 
 verbose_log(f"FFmpeg Source: {ffmpeg_source}")
 verbose_log(f"FFmpeg Path: {ffmpeg_path}")
 
 """Confirm FFmpeg exists based on path"""
 if not os.path.exists(ffmpeg_path):
-    print("Could not find FFmpeg. Confirm it exists at path:")
-    print(ffmpeg_path)
-    sys.exit(1)
+    out["error"] = f"Could not find FFmpeg. Confirm it exists at path: {ffmpeg_path}"
+    quit(out, 1)
 else:
     verbose_log("Confirmed FFmpeg exists.")
 
@@ -152,8 +159,8 @@ def record_stream(url, out_file, oauth_token, max_bytes=200):
     streams = session.streams(url)
     if len(streams) == 0 or "worst" not in streams.keys():
         verbose_log(f"No streams found for channel: {url}")
-        print("Stream is not available")
-        sys.exit(1)
+        out["error"] = "Stream is not available"
+        quit(out, 1)
     stream_obj = streams["worst"]
     verbose_log(f"Stream: {stream_obj}")
     fd = stream_obj.open()
@@ -168,6 +175,10 @@ def record_stream(url, out_file, oauth_token, max_bytes=200):
         file.write(data)
     return os.path.exists(out_file)
 
+def quit(json_obj, code=0):
+    print(json.dumps(json_obj))
+    sys.exit(code)
+
 """ Script Logic """
 verbose_log(f"Twitch URL: {config['twitch_channel']}")
 
@@ -176,8 +187,8 @@ if twitch_gql_token_valid(config["twitch_gql_oauth_token"]):
     verbose_log("Twitch GQL OAuth Token Valid: True")
 else:
     verbose_log("Twitch GQL OAuth Token Valid: False")
-    print("Twitch GQL Token Expired")
-    sys.exit(1)
+    out["error"] = "Twitch GQL Token Expired"
+    quit(out, 1)
 
 verbose_log(f"Begin recording stream ({config['kbytes_to_record']} bytes)")
 
@@ -192,14 +203,15 @@ stream_audio_file = "output.acc"
 if record_stream(config["twitch_channel"], stream_audio_file, config["twitch_gql_oauth_token"], config["kbytes_to_record"]):
     verbose_log("Stream audio recorded successfully")
 else:
-    sys.stderr.write("Error recording stream audio.")
-    sys.exit(1)
+    out["error"] = "Error recording stream audio."
+    quit(out, 1)
+
 raw_audio_file = "output.raw"
 if convert_to_raw_audio(ffmpeg_path, stream_audio_file, raw_audio_file):
     verbose_log("Audio converted successfully")
 else:
-    sys.stderr.write("Error converting stream audio from ACC to raw PCM s16le")
-    sys.exit(1)
+    out["error"] = "Error converting stream audio from ACC to raw PCM s16le"
+    quit(out, 1)
 
 #Encode raw audio to base64
 with open(raw_audio_file, "rb") as song:
@@ -211,12 +223,7 @@ with open(raw_audio_file, "rb") as song:
     verbose_log(f"Shazam Requests Remaining: {requests_remaining}")
     verbose_log(matches)
 
-    out = {
-        "artist": "",
-        "song": "",
-        "album_art": "",
-        "remaining": requests_remaining
-    }
+    out["remaining"] = requests_remaining
 
     if "track" in matches.keys():
         if "title" in matches["track"].keys():
@@ -225,5 +232,5 @@ with open(raw_audio_file, "rb") as song:
             out["artist"] = matches["track"]["subtitle"]
         if "images" in matches["track"].keys() and "coverart" in matches["track"]["images"].keys():
             out["album_art"] = matches["track"]["images"]["coverart"]
-    print(json.dumps(out))
-sys.exit(0)
+
+quit(out)
