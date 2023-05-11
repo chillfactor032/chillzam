@@ -232,5 +232,7 @@ with open(raw_audio_file, "rb") as song:
             out["artist"] = matches["track"]["subtitle"]
         if "images" in matches["track"].keys() and "coverart" in matches["track"]["images"].keys():
             out["album_art"] = matches["track"]["images"]["coverart"]
+    else:
+        out["error"] = "Song not identified"
 
 quit(out)
