@@ -80,7 +80,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dialog.exec()
 
     def show_help(self):
-        pass
+        url = "https://github.com/chillfactor032/chillzam#gui-help"
+        response = QMessageBox.information(self, "ChillZam!", "Would you like to view the README file for detailed help?", QMessageBox.Ok | QMessageBox.Cancel)
+        if response == QMessageBox.Ok:
+            QDesktopServices.openUrl(QUrl(url))
 
     def chillzam(self):
         pass
