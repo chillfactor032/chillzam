@@ -1,0 +1,9 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>version.json</file>
+    <file>resources/files/icons/settings.svg</file>
+    <file>resources/files/icons/help-circle.svg</file>
+    <file>resources/files/icons/users.svg</file>
+    <file>resources/files/icons/music.svg</file>
+</qresource>
+</RCC>

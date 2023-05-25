@@ -1,6 +1,7 @@
 config.json
 output.acc
 output.raw
+*.bak
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

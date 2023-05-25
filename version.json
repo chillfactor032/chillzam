@@ -1,0 +1,7 @@
+{
+    "version": "1.0",
+    "ico": "./resources/img/<ICON>.png",
+    "company_name": "ChillAspect",
+    "product_name": "ChillZam",
+    "description": "Detect the current playing song on a Twitch stream."
+}
