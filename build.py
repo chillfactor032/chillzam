@@ -265,20 +265,9 @@ if(partial):
 print("Compiling Binary")
 
 if(target_env == "windows"):
-    show_cmd = "--windows-disable-console "
-    if(TEST_BUILD):
-        show_cmd = ""
-    
-    icon = f"--windows-icon-from-ico={version['ico']}"
-    if not os.path.exists(version['ico']):
-        icon = ""
-    
-    cmd = f"py -m nuitka --onefile --standalone" \
-            f" --enable-plugin=pyside6 " \
-            f"{icon}" \
-            f" {show_cmd}" \
-            f" -o bin/{OUTPUT_FILE}" \
-            " MainWindow.py"
+
+    # To Do add icon
+    cmd = f"pyinstaller -w -n {PROJECT_NAME} --onefile MainWindow.py"
     
 proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 for c in iter(lambda: proc.stdout.read(1), b''):

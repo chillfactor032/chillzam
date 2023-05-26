@@ -1,0 +1,50 @@
+QMainWindow {
+    background-color: #0A2647;
+    color: #2C74B3;
+}
+
+QDialog {
+    background-color: #0A2647;
+    color: #2C74B3;
+}
+
+QLabel {
+    color: #2C74B3;
+}
+
+QCheckBox {
+    color: #2C74B3;
+}
+
+QGroupBox {
+    margin-top: 5px;
+    border: 1px solid #2C74B3;
+    color: #2C74B3;
+}
+
+QGroupBox::title {
+    top: -7px;
+    left: 10px;
+}
+
+QPushButton {
+    background-color: #2C74B3;
+    color: #0A2647;
+}
+
+QLineEdit {
+    background-color: #2C74B3;
+    color: #0A2647;
+    padding-left: 3px; 
+    padding-right: 3px; 
+}
+
+QToolButton {
+    background-color: #2C74B3;
+    color: #0A2647;
+}
+
+QStatusBar {
+    background-color: #0A2647;
+    color: #2C74B3;
+}

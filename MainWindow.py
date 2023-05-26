@@ -35,6 +35,11 @@ class LogLevel(Enum):
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     
+    # App Vars
+        
+
+        
+
     def __init__(self):
         super(MainWindow, self).__init__()
         #Load UI Components
@@ -50,6 +55,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.version = self.version_dict["version"]
         self.project_name = self.app_name.title().replace(" ", "")
         self.setWindowTitle(f"{self.app_name} {self.version}")
+
+        # Dark Mode Stuff
+        self.default_stylesheet = self.styleSheet()
+        dark_css_file = QFile(":resources/files/dark-mode.css")
+        dark_css_file.open(QFile.ReadOnly)
+        dark_css_text_stream =  QTextStream(dark_css_file)
+        self.dark_mode_stylesheet = dark_css_text_stream.readAll()
+        self.twitch_light_pixmap = QPixmap(":resources/files/icons/twitch.svg")
+        self.twitch_dark_pixmap = QPixmap(":resources/files/icons/twitch-dark.svg")
+        self.song_light_pixmap = QPixmap(":resources/files/icons/music.svg")
+        self.song_dark_pixmap = QPixmap(":resources/files/icons/music-dark.svg")
+        self.artist_light_pixmap = QPixmap(":resources/files/icons/users.svg")
+        self.artist_dark_pixmap = QPixmap(":resources/files/icons/users-dark.svg")
 
         #Load Settings
         self.config_dir = QStandardPaths.writableLocation(QStandardPaths.ConfigLocation)
@@ -108,14 +126,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.loading_movie.start()
         geometry = self.settings.value(f"{self.project_name}/geometry")
         window_state = self.settings.value(f"{self.project_name}/windowState")
+        self.dark_mode = self.settings.value(f"{self.project_name}/DarkMode", "0") == "1"
+
+        if self.dark_mode:
+            self.toggle_dark_mode()
+
         if(geometry and window_state):
             self.restoreGeometry(geometry) 
             self.restoreState(window_state)
         self.show()
 
+    def toggle_dark_mode(self):
+        if self.dark_mode:
+            #dark mode
+            self.setStyleSheet(self.dark_mode_stylesheet)
+            self.twitch_icon_label.setPixmap(self.twitch_dark_pixmap)
+            self.song_icon_label.setPixmap(self.song_dark_pixmap)
+            self.artist_icon_label.setPixmap(self.artist_dark_pixmap)
+        else:
+            #light mode
+            self.setStyleSheet(self.default_stylesheet)
+            self.twitch_icon_label.setPixmap(self.twitch_light_pixmap)
+            self.song_icon_label.setPixmap(self.song_light_pixmap)
+            self.artist_icon_label.setPixmap(self.artist_light_pixmap)
+
     def show_settings(self):
-        dialog = SettingsDialog(self.settings, parent=self)
+        dialog = SettingsDialog(self.settings, dark_stylesheet=self.dark_mode_stylesheet, parent=self)
         dialog.exec()
+        #Check if dark mode changed
+        self.dark_mode = self.settings.value(f"{self.project_name}/DarkMode", "0") == "1"
+        self.toggle_dark_mode()
 
     def show_help(self):
         url = "https://github.com/chillfactor032/chillzam/blob/main/GUIHELP.md"
@@ -150,6 +190,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def chillzam(self):
         self.status_update("Detecting song...")
+        self.album_art_label.setPixmap(QPixmap())
         self.show_loading_gif()
         self.album_art_pixmap = QPixmap()
         channel = self.settings.value(f"{self.project_name}/TwitchChannel", "")
@@ -184,7 +225,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 class SettingsDialog(QDialog):
 
-    def __init__(self, settings, parent=None):
+    def __init__(self, settings, dark_stylesheet=None, parent=None):
         super().__init__(parent)
         self.ui = Ui_SettingsDialog()
         self.ui.setupUi(self)
@@ -198,7 +239,10 @@ class SettingsDialog(QDialog):
         self.ui.channel_line_edit.setText(self.settings.value(f"{self.project_name}/TwitchChannel", ""))
         self.ui.twitch_token_line_edit.setText(self.settings.value(f"{self.project_name}/TwitchGPLToken", ""))
         self.ui.shazam_api_line_edit.setText(self.settings.value(f"{self.project_name}/ShazamAPIKey", ""))
-    
+        self.ui.dark_mode_checkbox.setChecked(self.settings.value(f"{self.project_name}/DarkMode", "0")=="1")
+        if self.settings.value(f"{self.project_name}/DarkMode", "0")=="1" and dark_stylesheet is not None:
+            self.setStyleSheet(dark_stylesheet)
+
     def help_token(self):
         help_str = """
             This is the Twitch GPL Auth-Token. You can find this in your browser's cookies.\n\nWould you like to see instructions on how to get this value? 
@@ -230,6 +274,10 @@ class SettingsDialog(QDialog):
         self.settings.setValue(f"{self.project_name}/TwitchChannel", channel)
         self.settings.setValue(f"{self.project_name}/TwitchGPLToken", token)
         self.settings.setValue(f"{self.project_name}/ShazamAPIKey", api_key)
+        if self.ui.dark_mode_checkbox.isChecked():
+            self.settings.setValue(f"{self.project_name}/DarkMode", "1") 
+        else:
+            self.settings.setValue(f"{self.project_name}/DarkMode", "0") 
         self.settings.sync()
         self.accept()
 

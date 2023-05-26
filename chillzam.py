@@ -75,7 +75,7 @@ class ChillZam(Thread):
     def convert_to_raw_audio(self, ffmpeg, in_file, out_file):
         proc = subprocess.run([ffmpeg, '-i', in_file, "-vn", "-ar", "44100", "-ac", "1", "-c:a", "pcm_s16le", "-f", "s16le", out_file], 
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL, check=False)
+            stderr=subprocess.DEVNULL, check=False, shell=True)
         return proc.returncode == 0
 
     def record_stream(self, outfile, max_bytes=200):
@@ -125,7 +125,13 @@ class ChillZam(Thread):
             songb64 = base64.b64encode(songBytes)
             l = len(songb64)
             #Detect the song
-            requests_remaining, matches = self.detect_song(songb64, self.shazam_api_key)
+            try:
+                requests_remaining, matches = self.detect_song(songb64, self.shazam_api_key)
+            except requests.exceptions.ReadTimeout as exception:
+                self.output["error"] = "Request to Shazam timed out. Try again."
+                self.result()
+                return
+            
             self.output["remaining"] = requests_remaining
 
             if "track" in matches.keys():

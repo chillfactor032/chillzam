@@ -6,165 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>215</height>
+    <width>373</width>
+    <height>216</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
-  <widget class="QGroupBox" name="groupBox">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>381</width>
-     <height>161</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Settings</string>
-   </property>
-   <widget class="QLineEdit" name="shazam_api_line_edit">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>120</y>
-      <width>201</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>120</y>
-      <width>111</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Shazam API Key:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="channel_line_edit">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>20</y>
-      <width>201</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>60</y>
-      <width>111</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Twitch GQL Token:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>111</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Twitch Channel:</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="twitch_token_line_edit">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>60</y>
-      <width>201</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="channel_help_button">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>20</y>
-      <width>22</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="../../Resources.qrc">
-      <normaloff>:/resources/files/icons/help-circle.svg</normaloff>:/resources/files/icons/help-circle.svg</iconset>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="token_help_button">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>60</y>
-      <width>22</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="../../Resources.qrc">
-      <normaloff>:/resources/files/icons/help-circle.svg</normaloff>:/resources/files/icons/help-circle.svg</iconset>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="shazam_help_button">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>120</y>
-      <width>22</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="../../Resources.qrc">
-      <normaloff>:/resources/files/icons/help-circle.svg</normaloff>:/resources/files/icons/help-circle.svg</iconset>
-    </property>
-   </widget>
-  </widget>
   <widget class="QPushButton" name="cancel_button">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>270</x>
      <y>180</y>
      <width>75</width>
      <height>24</height>
@@ -177,7 +29,7 @@
   <widget class="QPushButton" name="save_button">
    <property name="geometry">
     <rect>
-     <x>210</x>
+     <x>170</x>
      <y>180</y>
      <width>75</width>
      <height>24</height>
@@ -185,6 +37,166 @@
    </property>
    <property name="text">
     <string>Save</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="dark_mode_checkbox">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>140</y>
+     <width>111</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Dark Mode</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="channel_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>20</y>
+     <width>201</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">padding-left: 3px; padding-right: 3px; </string>
+   </property>
+   <property name="placeholderText">
+    <string>test</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>60</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Twitch GQL Token:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="channel_help_button">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>20</y>
+     <width>22</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Resources.qrc">
+     <normaloff>:/resources/files/icons/help-circle.svg</normaloff>:/resources/files/icons/help-circle.svg</iconset>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>20</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Twitch Channel:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="twitch_token_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>60</y>
+     <width>201</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">padding-left: 3px; padding-right: 3px; </string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="shazam_api_line_edit">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>100</y>
+     <width>201</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">padding-left: 3px; padding-right: 3px; </string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>100</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Shazam API Key:</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="shazam_help_button">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>100</y>
+     <width>22</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Resources.qrc">
+     <normaloff>:/resources/files/icons/help-circle.svg</normaloff>:/resources/files/icons/help-circle.svg</iconset>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="token_help_button">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>60</y>
+     <width>22</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Resources.qrc">
+     <normaloff>:/resources/files/icons/help-circle.svg</normaloff>:/resources/files/icons/help-circle.svg</iconset>
    </property>
   </widget>
  </widget>
