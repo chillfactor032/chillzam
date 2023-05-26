@@ -59,7 +59,7 @@ compiler_name = ""
 rcc_exe_name = "pyside6-rcc"
 uic_exe_name = "pyside6-rcc"
 if target_env == OperatingSystem.WINDOWS:
-    python_bin_dir = os.path.join(python_dir, "Scripts")
+    python_bin_dir = python_dir
     rcc_exe_name += ".exe"
     uic_exe_name += ".exe"
 else:
@@ -158,7 +158,7 @@ for file in ui_files:
 print("\n> UI Files Compiled Successfully")
 print("=============================================\n")
 
-resource_dest = "Resources.py"
+resource_dest = "Resources_rc.py"
 print("Compiling Resources")
 print(f"> Target Resources file: {resource_dest}")
 
