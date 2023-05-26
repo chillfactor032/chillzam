@@ -29,7 +29,7 @@ else:
 cwd = os.getcwd()
 ui_path = os.path.join(cwd, "resources", "ui")
 destination_file = os.path.join(cwd, "UI_Components.py")
-resource_file = os.path.join(cwd, "VodSlicer.rc")
+resource_file = os.path.join(cwd, "Resources.qrc")
 dist_dir = os.path.join(cwd, "dist")
 partial = False
 
@@ -121,7 +121,6 @@ def compileUiFile(ui_file, destination_file):
 # Function to compile the provided ui_file to py
 # and place it in destination_path
 def compileResources(resources_file, destination_file):
-    #rcc -g python -o Resources.py LightPlanStudio.rc
     ret = subprocess.run(["pyside6-rcc", "-g", "python", "-o", destination_file, resources_file], capture_output=True)
     stderr = ret.stderr.decode("utf-8")
     if(ret.returncode != 0):
