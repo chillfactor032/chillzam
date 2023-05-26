@@ -2,16 +2,22 @@
 import sys
 import json
 import os
+import platform
+import hashlib
+import stat
+from threading import Thread
 from enum import Enum
 
 # PySide6 Imports
 from PySide6.QtWidgets import QApplication, QMainWindow, QStyle, QDialog, QMessageBox
-from PySide6.QtCore import Qt, QSettings, QFile, QTextStream, QStandardPaths, QUrl
-from PySide6.QtGui import QPixmap, QIcon, QDesktopServices
+from PySide6.QtCore import Qt, QSettings, QFile, QTextStream, QStandardPaths, QUrl, Signal, QObject
+from PySide6.QtGui import QPixmap, QIcon, QDesktopServices, QResizeEvent, QMovie
 
 #Project Imports
+import requests
 import Resources_rc
 from UI_Components import Ui_MainWindow, Ui_SettingsDialog
+from chillzam import ChillZam
 
 #Log Levels
 class LogLevel(Enum):
@@ -52,6 +58,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ini_path = os.path.join(self.config_dir, f"{self.project_name}.ini").replace("\\", "/")
         self.settings = QSettings(self.ini_path, QSettings.IniFormat)
 
+        ## Copy FFMPEG to Local Config Dir
+        self.os = "win"
+        ffmpeg_filename = "ffmpeg.exe"
+        ffmpeg_file = QFile(f":resources/files/bin/win/{ffmpeg_filename}")
+        if "macOS" in platform.platform(terse=1):
+            #Mac Detected
+            ffmpeg_filename = "ffmpeg"
+            ffmpeg_file = QFile(f":resources/files/bin/mac/{ffmpeg_filename}")
+            self.os = "mac"
+        self.ffmpeg_path = os.path.join(self.config_dir, ffmpeg_filename).replace("\\", "/")
+        self.ffmpeg_md5 = ""
+        if(os.path.exists(self.ffmpeg_path)==False):
+            ffmpeg_file.open(QFile.ReadOnly)
+            data = ffmpeg_file.readAll()
+            ffmpeg_bytes = data.data()
+            with open(self.ffmpeg_path, "wb") as f:
+                f.write(ffmpeg_bytes)
+                self.ffmpeg_md5 = hashlib.md5(ffmpeg_bytes).hexdigest()
+            if(os.path.exists(self.ffmpeg_path)==False):
+                print("Failed to create FFMPEG Binary")
+        else:
+            with open(self.ffmpeg_path, 'rb') as f:
+                ffmpeg_bytes = f.read()    
+                self.ffmpeg_md5 = hashlib.md5(ffmpeg_bytes).hexdigest()
+
+        #If OS not Windows, set ffmpeg binary as executable
+        if self.os != "win":
+            os.chmod(self.ffmpeg_path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
+
         #Set window Icon
         default_icon_pixmap = QStyle.StandardPixmap.SP_FileDialogListView
         icon_pixmap = QPixmap(":resources/file/icon/icon.ico")
@@ -68,6 +103,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.help_button.clicked.connect(self.show_help)
 
         #Finally, Show the UI
+        self.album_art_pixmap = QPixmap()
+        self.loading_movie = QMovie(":resources/files/icons/equalizer.gif")
+        self.loading_movie.start()
         geometry = self.settings.value(f"{self.project_name}/geometry")
         window_state = self.settings.value(f"{self.project_name}/windowState")
         if(geometry and window_state):
@@ -80,14 +118,62 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dialog.exec()
 
     def show_help(self):
-        url = "https://github.com/chillfactor032/chillzam#gui-help"
+        url = "https://github.com/chillfactor032/chillzam/blob/main/GUIHELP.md"
         response = QMessageBox.information(self, "ChillZam!", "Would you like to view the README file for detailed help?", QMessageBox.Ok | QMessageBox.Cancel)
         if response == QMessageBox.Ok:
             QDesktopServices.openUrl(QUrl(url))
 
-    def chillzam(self):
-        pass
+    def status_update(self, msg, timeout=0):
+        timeout = timeout*1000
+        self.statusBar.showMessage(msg, timeout)
 
+    def chillzam_done(self, result):
+        self.hide_loading_gif()
+        if len(result["error"]) == 0:
+            self.song_artist_label.setText(result['artist'])
+            self.song_title_label.setText(result['song'])
+            album_art_fetcher = AlbumArtFetcher(result['album_art'])
+            self.twitch_channel_label.setText(self.settings.value(f"{self.project_name}/TwitchChannel", ""))
+            album_art_fetcher.signals.done.connect(self.set_album_art)
+            album_art_fetcher.start()
+            self.status_update(f"Requests remaining: {result['remaining']} / month", 20)
+        else:
+            self.status_update(f"Error: {result['error']}", 20)
+
+    def set_album_art(self, pixmap:QPixmap):
+        if pixmap is not None:
+            # Save the original
+            self.album_art_pixmap = pixmap
+            h = self.album_art_label.height()
+            w = self.album_art_label.width()
+            self.album_art_label.setPixmap(pixmap.scaled(w, h, Qt.KeepAspectRatio))
+
+    def chillzam(self):
+        self.status_update("Detecting song...")
+        self.show_loading_gif()
+        self.album_art_pixmap = QPixmap()
+        channel = self.settings.value(f"{self.project_name}/TwitchChannel", "")
+        token = self.settings.value(f"{self.project_name}/TwitchGPLToken", "")
+        api = self.settings.value(f"{self.project_name}/ShazamAPIKey", "")
+        working_dir = "./test"
+        cz = ChillZam(channel, token, api, self.config_dir, self.ffmpeg_path)
+        cz.signals.status_update.connect(self.status_update)
+        cz.signals.result.connect(self.chillzam_done)
+        cz.start()
+    
+    def show_loading_gif(self):
+        self.album_art_label.setMovie(self.loading_movie)
+    
+    def hide_loading_gif(self):
+        self.album_art_label.setMovie(None)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        if not self.album_art_pixmap.isNull():
+            h = self.album_art_label.height()
+            w = self.album_art_label.width()
+            self.album_art_label.setPixmap(self.album_art_pixmap.scaled(w, h, Qt.KeepAspectRatio))
+        return super().resizeEvent(event)
+    
     # App is closing, cleanup
     def closeEvent(self, evt):
         # Remember the size and position of the GUI
@@ -117,9 +203,10 @@ class SettingsDialog(QDialog):
         help_str = """
             This is the Twitch GPL Auth-Token. You can find this in your browser's cookies.\n\nWould you like to see instructions on how to get this value? 
         """.strip()
+        url = "https://github.com/chillfactor032/chillzam/blob/main/GUIHELP.md"
         response = QMessageBox.information(self, "ChillZam!", help_str, QMessageBox.Ok | QMessageBox.Cancel)
         if response == QMessageBox.Ok:
-            QDesktopServices.openUrl(QUrl("https://www.twitchapps.com/tmi/"))
+            QDesktopServices.openUrl(QUrl(url))
     
     def help_channel(self):
         help_str = """
@@ -131,7 +218,10 @@ class SettingsDialog(QDialog):
         help_str = """
             This is the Shazam API Token. You will have to generate this yourself.\n\nWould you like to see instructions on how to do this? 
         """.strip()
-        QMessageBox.information(self, "ChillZam!", help_str, QMessageBox.Ok | QMessageBox.Cancel)
+        url = "https://github.com/chillfactor032/chillzam/blob/main/GUIHELP.md"
+        response = QMessageBox.information(self, "ChillZam!", help_str, QMessageBox.Ok | QMessageBox.Cancel)
+        if response == QMessageBox.Ok:
+            QDesktopServices.openUrl(QUrl(url))
     
     def save(self):
         channel = self.ui.channel_line_edit.text()
@@ -145,6 +235,23 @@ class SettingsDialog(QDialog):
 
     def cancel(self):
         self.reject()
+
+class AlbumArtFetcher(Thread):
+
+    class Signals(QObject):
+        done = Signal(QPixmap)
+
+    def __init__(self, img_url):
+        Thread.__init__(self)
+        self.img_url = img_url
+        self.signals = AlbumArtFetcher.Signals()
+
+    def run(self):
+        pixmap = QPixmap()
+        response = requests.get(self.img_url)
+        if response.status_code == 200:
+            pixmap.loadFromData(response.content)
+        self.signals.done.emit(pixmap)
 
 # Start the PySide6 App
 if __name__ == "__main__":

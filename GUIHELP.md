@@ -4,7 +4,7 @@ If you wish to run this tool as a standalone GUI, an executable will be availabl
 
 ## Twitch Channel
 
-This is simple the name of the Twitch channel you want ChillZam to listen to. If the url of the channel is "https://twitch.tv/shoud", then the channel name is simple "shroud".
+This is simple the name of the Twitch channel you want ChillZam to listen to. If the url of the channel is "https://twitch.tv/shoud", then the channel name is simply "shroud".
 
 ## Getting a Twitch GPL Auth token
 

@@ -5,5 +5,9 @@
     <file>resources/files/icons/help-circle.svg</file>
     <file>resources/files/icons/users.svg</file>
     <file>resources/files/icons/music.svg</file>
+    <file>resources/files/icons/twitch.svg</file>
+    <file>resources/files/icons/equalizer.gif</file>
+    <file>resources/files/bin/win/ffmpeg.exe</file>
+    <file>resources/files/bin/mac/ffmpeg</file>
 </qresource>
 </RCC>

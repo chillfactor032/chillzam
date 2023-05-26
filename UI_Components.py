@@ -17,7 +17,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QGroupBox, QHBoxLayout, QLabel,
     QMainWindow, QPushButton, QSizePolicy, QSpacerItem,
-    QToolButton, QVBoxLayout, QWidget)
+    QStatusBar, QToolButton, QVBoxLayout, QWidget)
 import Resources_rc
 
 class Ui_MainWindow(object):
@@ -52,10 +52,38 @@ class Ui_MainWindow(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy1)
-        self.widget.setMinimumSize(QSize(0, 100))
+        self.widget.setMinimumSize(QSize(0, 140))
         self.verticalLayout_3 = QVBoxLayout(self.widget)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, -1, 0, 0)
+        self.widget_4 = QWidget(self.widget)
+        self.widget_4.setObjectName(u"widget_4")
+        self.horizontalLayout_4 = QHBoxLayout(self.widget_4)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.label_3 = QLabel(self.widget_4)
+        self.label_3.setObjectName(u"label_3")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
+        self.label_3.setSizePolicy(sizePolicy2)
+        self.label_3.setMinimumSize(QSize(40, 0))
+        self.label_3.setPixmap(QPixmap(u":/resources/files/icons/twitch.svg"))
+
+        self.horizontalLayout_4.addWidget(self.label_3)
+
+        self.twitch_channel_label = QLabel(self.widget_4)
+        self.twitch_channel_label.setObjectName(u"twitch_channel_label")
+        font = QFont()
+        font.setPointSize(14)
+        self.twitch_channel_label.setFont(font)
+
+        self.horizontalLayout_4.addWidget(self.twitch_channel_label)
+
+
+        self.verticalLayout_3.addWidget(self.widget_4)
+
         self.widget_2 = QWidget(self.widget)
         self.widget_2.setObjectName(u"widget_2")
         self.horizontalLayout_2 = QHBoxLayout(self.widget_2)
@@ -63,9 +91,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setContentsMargins(0, -1, 0, 0)
         self.label_2 = QLabel(self.widget_2)
         self.label_2.setObjectName(u"label_2")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
         self.label_2.setSizePolicy(sizePolicy2)
         self.label_2.setMinimumSize(QSize(40, 0))
@@ -75,6 +100,7 @@ class Ui_MainWindow(object):
 
         self.song_title_label = QLabel(self.widget_2)
         self.song_title_label.setObjectName(u"song_title_label")
+        self.song_title_label.setFont(font)
 
         self.horizontalLayout_2.addWidget(self.song_title_label)
 
@@ -97,6 +123,7 @@ class Ui_MainWindow(object):
 
         self.song_artist_label = QLabel(self.widget_3)
         self.song_artist_label.setObjectName(u"song_artist_label")
+        self.song_artist_label.setFont(font)
 
         self.horizontalLayout_3.addWidget(self.song_artist_label)
 
@@ -141,8 +168,6 @@ class Ui_MainWindow(object):
         self.chillzam_button = QPushButton(self.groupBox_2)
         self.chillzam_button.setObjectName(u"chillzam_button")
         self.chillzam_button.setMinimumSize(QSize(200, 40))
-        font = QFont()
-        font.setPointSize(14)
         self.chillzam_button.setFont(font)
 
         self.horizontalLayout.addWidget(self.chillzam_button)
@@ -151,6 +176,9 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.groupBox_2)
 
         MainWindow.setCentralWidget(self.centralwidget)
+        self.statusBar = QStatusBar(MainWindow)
+        self.statusBar.setObjectName(u"statusBar")
+        MainWindow.setStatusBar(self.statusBar)
 
         self.retranslateUi(MainWindow)
 
@@ -161,6 +189,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Current Song", None))
         self.album_art_label.setText("")
+        self.label_3.setText("")
+        self.twitch_channel_label.setText("")
         self.label_2.setText("")
         self.song_title_label.setText("")
         self.label_4.setText("")

@@ -2,6 +2,8 @@ config.json
 output.acc
 output.raw
 *.bak
+.pylintrc
+Resources_rc.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
