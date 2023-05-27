@@ -13,5 +13,7 @@
     <file>resources/files/bin/win/ffmpeg.exe</file>
     <file>resources/files/bin/mac/ffmpeg</file>
     <file>resources/files/dark-mode.css</file>
+    <file>resources/img/icon_lg.png</file>
+    <file>resources/img/icon.ico</file>
 </qresource>
 </RCC>

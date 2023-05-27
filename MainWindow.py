@@ -107,7 +107,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         #Set window Icon
         default_icon_pixmap = QStyle.StandardPixmap.SP_FileDialogListView
-        icon_pixmap = QPixmap(":resources/file/icon/icon.ico")
+        icon_pixmap = QPixmap(":resources/img/icon.ico")
         icon = QIcon(icon_pixmap)
         default_icon = self.style().standardIcon(default_icon_pixmap)
         if icon:
@@ -206,6 +206,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.album_art_label.setMovie(self.loading_movie)
     
     def hide_loading_gif(self):
+        self.album_art_label.setPixmap(QPixmap())
         self.album_art_label.setMovie(None)
 
     def resizeEvent(self, event: QResizeEvent) -> None:
